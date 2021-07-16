@@ -8,6 +8,7 @@ class newImage:
         self.imagePath = "default image path"
         self.displayTitle = "Display"
         self.numberOfFeatures = 0
+        self.featureNames = []
         self.paintBrushSize = 1
         self.paintBrushColour = 0
 

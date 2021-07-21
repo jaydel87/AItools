@@ -1,13 +1,18 @@
 import imageOperations as im
+import imageFeatures as imf
 import cv2
 import numpy as np
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+#from xgboost import XGBRegressor
 import matplotlib.pyplot as plt
 
 image = im.newImage()
-image.numberOfFeatures = 2
-image.featureNames = ["Background"]#, "Cell"]
+image.numberOfCategories = 2
+image.categoryNames = ["Category"]
 
 trainingImage = im.readImage(image)
 rows = trainingImage.shape[0]
@@ -23,36 +28,50 @@ pixelID = np.arange(0, rows*cols)
 features_df = pd.DataFrame(data=pixelID, columns=["PixelID"])
 features_df["PixelValue"] = trainingImage[:, :, 0].flatten()
 
+features = imf.newFeature()
+imf.get_all_features(features, trainingImage[:, :, 0])
+
+print(len(features.featureNames), len(features.features))
+
+for i in range(len(features.featureNames)):
+    features_df[features.featureNames[i]] = features.features[i]
+
+print(features_df.describe())
+
 trainingPixels = np.zeros([rows, cols])
 
-for n in range(image.numberOfFeatures):
+for n in range(image.numberOfCategories):
 
-    feature = im.features()
-    cv2.setMouseCallback(image.imagePath, feature.record_pixels)
-
-    featureName = image.featureNames[0]
-
+    categories = im.getCategories()
+    cv2.setMouseCallback(image.imagePath, categories.record_pixels)
 
     im.displayImage(image, trainingImageNorm)
 
-    for i in range(len(feature.xlist)):
-        trainingPixels[feature.ylist[i], feature.xlist[i]] = n+1
+    for i in range(len(categories.xlist)):
+        trainingPixels[categories.ylist[i], categories.xlist[i]] = n+1
 
-features_df[featureName] = trainingPixels.flatten()
+features_df['Category'] = trainingPixels.flatten()
 
 added_image = cv2.addWeighted(added_image, 1.0, trainingPixels, 1.0, 0)
 
 im.displayImage(image, added_image)
 
-idx = np.argwhere(features_df.Background.values != 0)
-y = features_df.Background.values[idx]
-X = features_df.PixelValue.values[idx]
+X_pred = features_df.copy()
+X_pred.drop(['Category'], axis=1, inplace=True)
 
-model = DecisionTreeRegressor(random_state=1)
-model.fit(np.array(X).reshape(-1, 1), y)
-prediction = model.predict(np.array(features_df.PixelValue).reshape(-1, 1))
+idx = features_df['Category'].to_numpy().nonzero()
+print(idx)
 
-prediction_int = [round(x) for x in prediction]
+training_df = features_df.iloc[idx]
+print(training_df.describe())
+y = training_df.Category
+X = training_df.copy()
+X.drop(['Category'], axis=1, inplace=True)
+
+model = GradientBoostingClassifier(random_state=1)
+
+model.fit(X, y)
+prediction = model.predict(X_pred)
 
 plt.imshow(np.array(prediction).reshape((rows, cols)))
 plt.show()

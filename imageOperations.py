@@ -7,8 +7,8 @@ class newImage:
 
         self.imagePath = "default image path"
         self.displayTitle = "Display"
-        self.numberOfFeatures = 0
-        self.featureNames = []
+        self.numberOfCategories = 0
+        self.categoryNames = []
         self.paintBrushSize = 1
         self.paintBrushColour = 0
 
@@ -27,7 +27,7 @@ def displayImage(self, im):
     cv2.waitKey(0)
 
 
-class features():
+class getCategories():
 
     def __init__(self):
         self.xlist = []

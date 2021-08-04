@@ -1,15 +1,11 @@
 import easygui
-import cv2
-import numpy as np
-from skimage.io import imread
+import skimage.io as io
 
 class newImage:
 
     def __init__(self):
 
         self.imagePath = "default image path"
-        self.imageChannels = 1
-        self.channelNames = []
         self.displayTitle = "Display"
         self.numberOfCategories = 0
         self.categoryNames = []
@@ -20,28 +16,22 @@ class newImage:
 def readImage(self):
 
     self.imagePath = easygui.fileopenbox("Please select an image")
-    #im = cv2.imread(self.imagePath)
-    im = imread(self.imagePath, plugin='pil')
-    self.imageChannels = 1 if len(im.shape) < 3 else im.shape[-1]
-    print(self.imageChannels)
+    im = io.imread(self.imagePath, plugin='pil')
 
     return im
 
 
 def displayImage(self, im):
 
-    cv2.imshow(self.imagePath, im)
-    cv2.waitKey(0)
+    io.imshow(self.imagePath, im)
 
 
-class getCategories:
+class getCategories():
 
-    def __init__(self, image, colour):
+    def __init__(self):
         self.xlist = []
         self.ylist = []
         self.lclick = False
-        self.image = image
-        self.colour = colour
 
     def record_pixels(self, event, x, y, flags, param):
 
@@ -56,9 +46,6 @@ class getCategories:
         if self.lclick == True and event == cv2.EVENT_MOUSEMOVE:
             self.xlist.append(x)
             self.ylist.append(y)
-
-            cv2.line(self.image, (self.xlist[-2], self.ylist[-2]), (self.xlist[-1], self.ylist[-1]), self.colour, 1)
-
 
 
 

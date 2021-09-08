@@ -81,6 +81,7 @@ im.displayImage(image, dispImage)
 
 X_pred = features_df.copy()
 X_pred.drop(['Category'], axis=1, inplace=True)
+X_pred.drop(['PixelID'], axis=1, inplace=True)
 
 idx = features_df['Category'].to_numpy().nonzero()
 print(idx)
@@ -90,13 +91,13 @@ print(training_df.describe())
 y = training_df.Category
 X = training_df.copy()
 X.drop(['Category'], axis=1, inplace=True)
+X.drop(['PixelID'], axis=1, inplace=True)
 
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
 
 #model = GradientBoostingClassifier(random_state=1, n_estimators=5000, learning_rate=0.05)
-#model = RandomForestClassifier(random_state=1, n_estimators=100)
-model = xgb.XGBClassifier(n_estimators=500, max_depth=5, learning_rate=0.05)
-
+model = RandomForestClassifier(random_state=1, n_estimators=500, max_depth=10)
+model_boost = xgb.XGBClassifier(n_estimators=500, max_depth=10, learning_rate=0.05)
 
 model.fit(train_X, train_y)
 pred = model.predict(train_X)
@@ -105,6 +106,25 @@ mae = mean_absolute_error(val_pred, val_y)
 print(mae)
 prediction = model.predict(X_pred)
 
+model_boost.fit(train_X, train_y)
+pred_boost = model_boost.predict(train_X)
+val_pred_boost = model_boost.predict(val_X)
+mae_boost = mean_absolute_error(val_pred_boost, val_y)
+print(mae_boost)
+prediction_boost = model_boost.predict(X_pred)
+
+for i in range(len(X_pred.columns)):
+    print(X_pred.columns[i], model.feature_importances_[i])
+# importances = model.feature_importances_
+# print(X_pred.columns)
+# print(importances)
+
+
+fig1 = plt.figure()
 plt.imshow(prediction.reshape((rows, cols)), cmap='Greys')
+
+fig2 = plt.figure()
+plt.imshow(prediction_boost.reshape((rows, cols)), cmap='Greys')
+
 plt.show()
 

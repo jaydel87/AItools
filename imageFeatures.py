@@ -11,56 +11,68 @@ class newFeature:
     def __init__(self):
         self.featureNames = []
         self.features = []
+        self.kernelSizes = [3]
+        self.selectedFeatures = ["Gaussian", "Mean", "Med", "Min", "Max", "Open", "Close", "Edge", "Wavelet"]
 
 
-def gaussian(self, image):
-    self.featureNames.append("Gaussian")
-    return skimage.filters.gaussian(image, sigma=1, truncate=3)
+def gaussian(self, image, size):
+    self.featureNames.append("Gaussian" + str(size))
+    return skimage.filters.gaussian(image, sigma=1, truncate=size)
 
 
-def mean(self, image):
-    self.featureNames.append("Mean")
-    return skimage.filters.rank.mean(image, skimage.morphology.square(3))
+def mean(self, image, size):
+    self.featureNames.append("Mean" + str(size))
+    return skimage.filters.rank.mean(image, skimage.morphology.square(size))
 
 
-def bilateral_mean(self, image):
-    self.featureNames.append('BiMean')
-    return skimage.filters.rank.mean_bilateral(image, skimage.morphology.square(5))
+def bilateral_mean(self, image, size):
+    self.featureNames.append('BiMean' + str(size))
+    return skimage.filters.rank.mean_bilateral(image, skimage.morphology.square(size))
 
 
-def median(self, image):
-    self.featureNames.append("Med")
-    return skimage.filters.rank.median(image, skimage.morphology.square(3))
+def median(self, image, size):
+    self.featureNames.append("Med" + str(size))
+    return skimage.filters.rank.median(image, skimage.morphology.square(size))
 
 
-def max(self, image):
-    self.featureNames.append("Max")
-    return skimage.filters.rank.maximum(image, skimage.morphology.square(3))
+def max(self, image, size):
+    self.featureNames.append("Max" + str(size))
+    return skimage.filters.rank.maximum(image, skimage.morphology.square(size))
 
 
-def min(self, image):
-    self.featureNames.append("Min")
-    return skimage.filters.rank.minimum(image, skimage.morphology.square(3))
+def min(self, image, size):
+    self.featureNames.append("Min" + str(size))
+    return skimage.filters.rank.minimum(image, skimage.morphology.square(size))
 
 
-def opening(self, image):
-    self.featureNames.append("Open")
-    return skimage.morphology.opening(image, skimage.morphology.square(3))
+def opening(self, image, size):
+    self.featureNames.append("Open" + str(size))
+    return skimage.morphology.opening(image, skimage.morphology.square(size))
 
 
-def closing(self, image):
-    self.featureNames.append("Close")
-    return skimage.morphology.closing(image, skimage.morphology.square(3))
+def closing(self, image, size):
+    self.featureNames.append("Close" + str(size))
+    return skimage.morphology.closing(image, skimage.morphology.square(size))
 
 
-def dilation(self, image):
-    self.featureNames.append("Dilate")
-    return skimage.morphology.dilation(image, skimage.morphology.square(3))
+def dilation(self, image, size):
+    self.featureNames.append("Dilate" + str(size))
+    return skimage.morphology.dilation(image, skimage.morphology.square(size))
 
 
-def erosion(self, image):
-    self.featureNames.append("Erode")
-    return skimage.morphology.erosion(image, skimage.morphology.square(3))
+def erosion(self, image, size):
+    self.featureNames.append("Erode" + str(size))
+    return skimage.morphology.erosion(image, skimage.morphology.square(size))
+
+
+def gradient(self, image, size):
+    self.featureNames.append("Grad" + str(size))
+    return skimage.filters.rank.gradient(image, skimage.morphology.square(size))
+
+
+def entropy(self, image, size):
+    self.featureNames.append("Entropy" + str(size))
+    return skimage.filters.rank.entropy(image, skimage.morphology.square(size))
 
 
 def edges(self, image):
@@ -68,21 +80,17 @@ def edges(self, image):
     return skimage.filters.sobel(image)
 
 
-def gradient(self, image):
-    self.featureNames.append("Grad")
-    return skimage.filters.rank.gradient(image, skimage.morphology.square(3))
-
-
 def laplace(self, image):
     self.featureNames.append("Laplace")
     return skimage.filters.laplace(image)
+
 
 def hog(self, image):
     self.featureNames.append("HistGrad")
     hog, hog_image = skimage.feature.hog(image, visualize=True)
 
-    #plt.imshow(hog_image)
-    #plt.show()
+    # plt.imshow(hog_image)
+    # plt.show()
 
     return skimage.feature.hog(image)
 
@@ -113,35 +121,66 @@ def wavelet_denoising(self, image):
     return skimage.restoration.denoise_wavelet(image)
 
 
-def entropy(self, image):
-    self.featureNames.append("Entropy")
-    return skimage.filters.rank.entropy(image, skimage.morphology.square(3))
+keyDict = {
+    "Gaussian": gaussian,
+    "Mean": mean,
+    #"BiMean": bilateral_mean,
+    "Med": median,
+    "Max": max,
+    "Min": min,
+    "Open": opening,
+    "Close": closing,
+    "Dilate": dilation,
+    "Erode": erosion,
+    "Grad": gradient,
+    "Entropy": entropy,
+    "Edge": edges,
+    "Laplace": laplace,
+    #"HistGrad": hog,
+    "DiffGauss": dog,
+    "Gabor": gabor,
+    "LBP": lbp,
+    "Hessian": hessian,
+    "Wavelet": wavelet_denoising
+}
 
-def get_all_features(self, image, channels, channel):
+kernel_based_features = ["Gaussian", "Mean", "BiMean", "Med", "Max", "Min", "Open", "Close", "Dilate", "Erode", "Grad",
+                         "Entropy"]
+
+
+def get_all_features(self, image, channels, channel, sizes):
 
     self.features = []
 
     if channels > 1:
         image = image[:, :, channel]
 
-    self.features.append(gaussian(self, image).flatten())
-    self.features.append(mean(self, image).flatten())
-    #self.features.append(bilateral_mean(self, image).flatten())
-    self.features.append(median(self, image).flatten())
-    self.features.append(opening(self, image).flatten())
-    self.features.append(closing(self, image).flatten())
-    self.features.append(dilation(self, image).flatten())
-    self.features.append(erosion(self, image).flatten())
-    self.features.append(edges(self, image).flatten())
-    self.features.append(gradient(self, image).flatten())
-    self.features.append(laplace(self, image).flatten())
-    #self.features.append(hog(self, image).flatten())
-    self.features.append(dog(self, image).flatten())
-    self.features.append(gabor(self, image).flatten())
-    self.features.append(lbp(self, image).flatten())
-    self.features.append(hessian(self, image).flatten())
-    self.features.append(wavelet_denoising(self, image).flatten())
-    self.features.append(entropy(self, image).flatten())
+    for key in keyDict:
+        print(key)
+        if key in kernel_based_features:
+            for size in sizes:
+                self.features.append(keyDict[key](self, image, size).flatten())
+        else:
+            self.features.append(keyDict[key](self, image).flatten())
+
+
+def get_selected_features(self, image, channels, channel, sizes):
+
+    self.features = []
+
+    if channels > 1:
+        image = image[:, :, channel]
+
+    for key in self.selectedFeatures:
+        print(key)
+        if key in kernel_based_features:
+            for size in sizes:
+                self.features.append(keyDict[key](self, image, size).flatten())
+        else:
+            self.features.append(keyDict[key](self, image).flatten())
+
+
+
 
 
 

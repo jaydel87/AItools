@@ -6,7 +6,7 @@ import skimage.restoration
 import matplotlib.pyplot as plt
 
 
-class newFeature:
+class newFeatureSet:
 
     def __init__(self):
         self.featureNames = []
@@ -163,6 +163,8 @@ def get_all_features(self, image, channels, channel, sizes):
         else:
             self.features.append(keyDict[key](self, image).flatten())
 
+    return keyDict.keys(), sizes
+
 
 def get_selected_features(self, image, channels, channel, sizes):
 
@@ -179,6 +181,7 @@ def get_selected_features(self, image, channels, channel, sizes):
         else:
             self.features.append(keyDict[key](self, image).flatten())
 
+    return self.selectedFeatures, sizes
 
 
 

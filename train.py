@@ -4,9 +4,11 @@ import imageAI as ai
 import cv2
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_absolute_error, accuracy_score, log_loss
+from sklearn.model_selection import learning_curve
+from sklearn.linear_model import Ridge
+from sklearn import tree
 import matplotlib.pyplot as plt
 import random as rnd
 import time
@@ -107,36 +109,43 @@ X_pred.drop(['PixelID'], axis=1, inplace=True)
 train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1, train_size=0.75, test_size=0.25)
 
 # Initialisation of model hyperparameters (for random forest/gradient boosting)
-trees = 200
-depth = 5
+trees = 100
+depth = 6
 rate = 0.1
-features = len(X_pred.columns) #int(0.5*len(X_pred.columns))
 L1reg = 0.1
+L2reg = 1
+subsample = 0.8
+colsample = 0.5
 
-model = ai.RandomForest(random_state=1, n_estimators=trees, max_depth=depth, max_features=features)
-model_boost = ai.GradientBooster("xgboost", random_state=1, n_estimators=trees, max_depth=depth, learning_rate=rate, reg_alpha=L1reg)
-
+model = ai.RandomForest(random_state=1, n_estimators=trees, max_depth=depth, bootstrap=True, max_samples=subsample)
+model_boost = ai.GradientBooster("xgboost", booster='gbtree', random_state=1, n_estimators=trees, max_depth=depth,
+                                     learning_rate=rate, reg_alpha=L1reg, reg_lambda=L2reg, subsample=subsample,
+                                     colsample_bytree=colsample, tree_method='auto')
 t0 = time.time()
 ai.train_model(model, train_X, train_y)
 val_pred = ai.predict(model, val_X)
-mae = mean_absolute_error(val_pred, val_y)
-accuracy = accuracy_score(val_pred, val_y)
+train_pred = ai.predict(model, train_X)
 prediction = ai.predict(model, X_pred)
+train_loss = log_loss(train_y, model.predict_proba(train_X))
+valid_loss = log_loss(val_y, model.predict_proba(val_X))
 prob_cat, prob_all = ai.model_probability(model, X_pred, prediction)
 t1 = time.time()
 print("Time (s) for random forest: "+str(t1-t0))
 
+#ai.plot_tree(image.imagePath, model, 5, train_X.columns, [str(x) for x in np.linspace(1, image.numberOfCategories, image.numberOfCategories)])
+
 t0 = time.time()
-ai.train_model(model_boost, train_X, train_y, early_stopping_rounds=10, eval_set=[(val_X, val_y)], verbose=False)
+#ai.train_model(model_boost, train_X, train_y, early_stopping_rounds=10, eval_set=[(val_X, val_y)], verbose=False)
+ai.train_model(model_boost, train_X, train_y)
 val_pred_boost = ai.predict(model_boost, val_X)
-mae_boost = mean_absolute_error(val_pred_boost, val_y)
-accuracy_boost = accuracy_score(val_pred_boost, val_y)
 prediction_boost = ai.predict(model_boost, X_pred)
 prob_boost_cat, prob_boost_all = ai.model_probability(model_boost, X_pred, prediction_boost)
+train_loss_boost = log_loss(train_y, model_boost.predict_proba(train_X))
+valid_loss_boost = log_loss(val_y, model_boost.predict_proba(val_X))
 t1 = time.time()
 print("Time (s) for gradient boosting: "+str(t1-t0))
 
-print(accuracy, accuracy_boost)
+print(valid_loss, valid_loss_boost)
 print(np.mean(prob_all), np.mean(prob_boost_all))
 
 for i in range(len(X_pred.columns)):
@@ -145,8 +154,6 @@ for i in range(len(X_pred.columns)):
 ai.save_model(model, "RandomForest1", image_features, feature_sizes)
 ai.save_model(model_boost, "GradientBoost1", image_features, feature_sizes)
 
-print(ai.load_model("RandomForest1"))
-
 fig1 = plt.figure()
 plt.imshow(prediction.reshape((rows, cols)), cmap='Greys')
 
@@ -154,11 +161,13 @@ fig2 = plt.figure()
 plt.imshow(prediction_boost.reshape((rows, cols)), cmap='Greys')
 
 fig3 = plt.figure()
-plt.imshow(prob_all.reshape((rows, cols)), cmap='Greys', vmin=0, vmax=1)
+plt.imshow(prob_boost_all.reshape((rows, cols)), cmap='Greys')
 
-fig4 = plt.figure()
-plt.imshow(prob_boost_all.reshape((rows, cols)), cmap='Greys', vmin=0, vmax=1)
-
+# fig3 = plt.figure()
+# plt.imshow(prob_all.reshape((rows, cols)), cmap='Greys', vmin=0, vmax=1)
+#
+# fig4 = plt.figure()
+# plt.imshow(prob_boost_all.reshape((rows, cols)), cmap='Greys', vmin=0, vmax=1)
 
 plt.show()
 

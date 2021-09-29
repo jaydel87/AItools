@@ -1,9 +1,12 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn import tree
 from xgboost import XGBRegressor
 from xgboost import XGBClassifier
+from xgboost import XGBRFClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 import pickle
@@ -63,6 +66,16 @@ def model_probability(model, prediction_features, prediction):
         probability_all[idx] = probability_by_category[i, idx]
 
     return probability_by_category, probability_all
+
+
+def plot_tree(image, model, no_trees, feature_names, class_names):
+    for rftree in range(no_trees):
+        tree.plot_tree(model.estimators_[rftree],
+                       feature_names=feature_names,
+                       class_names=class_names,
+                       filled=True)
+        plt.savefig(image+str(rftree)+".png")
+
 
 def save_model(model, name, features, sizes):
     featureDict = {

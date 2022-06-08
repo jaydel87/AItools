@@ -2,6 +2,7 @@ import easygui
 import cv2
 import numpy as np
 from skimage.io import imread
+from skimage.segmentation import mark_boundaries
 
 class newImage:
 
@@ -15,6 +16,9 @@ class newImage:
         self.categoryNames = []
         self.paintBrushSize = 1
         self.paintBrushColour = 0
+        self.useSavedPixels = 0
+        self.noDraw = 0
+        self.maskPath = "default image path"
 
 
 def readImage(self):
@@ -23,14 +27,14 @@ def readImage(self):
     #im = cv2.imread(self.imagePath)
     im = imread(self.imagePath, plugin='pil')
     self.imageChannels = 1 if len(im.shape) < 3 else im.shape[-1]
-    print(self.imageChannels)
 
     return im
 
 
-def displayImage(self, im):
+def displayImage(self, im, patches):
 
     cv2.imshow(self.imagePath, im)
+    cv2.imshow(self.imagePath, mark_boundaries(im, patches))
     cv2.waitKey(0)
 
 

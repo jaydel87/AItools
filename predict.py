@@ -10,9 +10,10 @@ from sklearn import tree
 import matplotlib.pyplot as plt
 import random as rnd
 import time
+from PIL import Image
 
-model, features = ai.load_model("RandomForest1")
-model_boost, features = ai.load_model("GradientBoost1")
+model, features = ai.load_model("RandomForest")
+model_boost, features = ai.load_model("GradientBoost")
 
 print(features)
 
@@ -20,6 +21,10 @@ image = im.newImage()
 
 # Read and image and get its properties
 predictionImage = im.readImage(image)
+
+imName = image.imagePath.rsplit(".", 1)[0]
+print(imName)
+
 rows = predictionImage.shape[0]
 cols = predictionImage.shape[1]
 channels = image.imageChannels
@@ -97,10 +102,17 @@ for i in range(len(X_pred.columns)):
 #print(ai.load_model("RandomForest1"))
 
 fig1 = plt.figure()
+prediction_arr = prediction.reshape((rows, cols))
 plt.imshow(prediction.reshape((rows, cols)), cmap='Greys')
+prediction_im = Image.fromarray(prediction_arr)
+prediction_im.save(imName + "_bin.tif")
+
 
 fig2 = plt.figure()
+prediction_arr = prediction_boost.reshape((rows, cols))
 plt.imshow(prediction_boost.reshape((rows, cols)), cmap='Greys')
+prediction_im = Image.fromarray(prediction_arr)
+prediction_im.save(imName + "_GB_bin.tif")
 
 fig3 = plt.figure()
 plt.imshow(prob_boost_all.reshape((rows, cols)), cmap='Greys')

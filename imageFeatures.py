@@ -12,7 +12,7 @@ class newFeatureSet:
         self.featureNames = []
         self.features = []
         self.kernelSizes = [3]
-        self.selectedFeatures = ["Gaussian", "Mean", "Med", "Min", "Max", "Open", "Close", "Edge", "Wavelet"]
+        self.selectedFeatures = ["Gaussian", "Mean", "Med", "Min", "Max", "Open", "Close", "Erode", "Dilate", "Grad"]
 
 
 def gaussian(self, image, size):
@@ -156,7 +156,7 @@ def get_all_features(self, image, channels, channel, sizes):
         image = image[:, :, channel]
 
     for key in keyDict:
-        print(key)
+        #print(key)
         if key in kernel_based_features:
             for size in sizes:
                 self.features.append(keyDict[key](self, image, size).flatten())

@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from xgboost import XGBRegressor
 from xgboost import XGBClassifier
@@ -44,6 +45,10 @@ def GradientBooster(library, **kwargs):
     else:
         print("Library not recognised")
         return 0
+
+
+def MLPerceptron():
+    return MLPClassifier
 
 
 def train_model(model, training_features, training_class, **kwargs):

@@ -25,7 +25,7 @@ import random
 
 # Initialise image properties
 image = im.newImage()
-image.numberOfCategories = 3
+image.numberOfCategories = 4
 
 # Read and image and get its properties
 trainingImage = im.readImage(image)

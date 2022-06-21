@@ -19,6 +19,7 @@ class newImage:
         self.useSavedPixels = 0
         self.noDraw = 0
         self.maskPath = "default image path"
+        self.patches = None
 
 
 def readImage(self):
@@ -31,10 +32,15 @@ def readImage(self):
     return im
 
 
-def displayImage(self, im, patches):
+def displayImageSuperpixels(self, im, patches):
 
     cv2.imshow(self.imagePath, im)
     cv2.imshow(self.imagePath, mark_boundaries(im, patches))
+    cv2.waitKey(0)
+
+
+def displayImage(self, im):
+    cv2.imshow(self.imagePath, im)
     cv2.waitKey(0)
 
 

@@ -52,7 +52,7 @@ train_df_name = imName + "_train.csv"
 # compute superpixels
 floatImage = img_as_float(trainingImage)
 #numSegments = int(0.0001 * len(floatImage.flatten()))
-numSegments = 5000
+numSegments = 1000
 #segments = slic(floatImage, n_segments=numSegments, sigma=2, compactness=12, start_label=1)
 segments = slic(floatImage, n_segments=numSegments, sigma=2, start_label=1)
 
@@ -150,7 +150,7 @@ if image.useSavedPixels == 0:
             # Draw lines for training and store the features/categories corresponding to these pixels
             cv2.setMouseCallback(image.imagePath, categories.record_pixels)
 
-            im.displayImage(image, dispImage, segments)
+            im.displayImageSuperpixels(image, dispImage, segments)
 
         # Insert an integer value corresponding to the category of the pixel into the empty image
         print("Put in list")
@@ -170,7 +170,7 @@ if image.useSavedPixels == 0:
 
     # Display the image indicating the pixels selected by the user.
     # Each category has a unique colour which is selected at random.
-    im.displayImage(image, dispImage, segments)
+    im.displayImageSuperpixels(image, dispImage, segments)
 
     # Create a dataframe containing all information relevant to the pixels to be used for training the model
     features_df['Category'] = trainingSuperpixels.flatten()
